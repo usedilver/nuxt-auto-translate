@@ -1,0 +1,84 @@
+{
+  "name": "nuxt-auto-translate",
+  "version": "0.1.0",
+  "description": "Automatic i18n translations for Nuxt using LLMs (OpenAI, Anthropic, Gemini, Groq, Ollama)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useDilver/nuxt-auto-translate.git"
+  },
+  "homepage": "https://github.com/useDilver/nuxt-auto-translate#readme",
+  "bugs": {
+    "url": "https://github.com/useDilver/nuxt-auto-translate/issues"
+  },
+  "license": "MIT",
+  "author": "useDilver",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": ["./dist/types.d.mts"]
+    }
+  },
+  "files": ["dist"],
+  "workspaces": ["playground"],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "npm run dev:prepare && nuxt dev playground",
+    "dev:build": "nuxt build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground",
+    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "^3.17.0"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^1.0.0",
+    "@nuxt/module-builder": "^1.0.0",
+    "@nuxt/schema": "^3.17.0",
+    "@nuxt/test-utils": "^3.17.0",
+    "@types/node": "^22.0.0",
+    "changelogen": "^0.6.0",
+    "eslint": "^9.0.0",
+    "nuxt": "^3.17.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.0.0",
+    "vue-tsc": "^2.0.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0",
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": { "optional": true },
+    "@anthropic-ai/sdk": { "optional": true },
+    "@google/generative-ai": { "optional": true }
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt3",
+    "nuxt-module",
+    "i18n",
+    "translation",
+    "auto-translate",
+    "openai",
+    "anthropic",
+    "claude",
+    "gemini",
+    "groq",
+    "ollama",
+    "llm",
+    "ai"
+  ]
+}

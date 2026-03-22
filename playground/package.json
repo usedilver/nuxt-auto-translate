@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "nuxt-auto-translate-playground",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^3.17.0"
+  }
+}
