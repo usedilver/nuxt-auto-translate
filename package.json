@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auto-translate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatic i18n translations for Nuxt using LLMs (OpenAI, Anthropic, Gemini, Groq, Ollama)",
   "repository": {
     "type": "git",
@@ -22,11 +22,17 @@
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
-      ".": ["./dist/types.d.mts"]
+      ".": [
+        "./dist/types.d.mts"
+      ]
     }
   },
-  "files": ["dist"],
-  "workspaces": ["playground"],
+  "files": [
+    "dist"
+  ],
+  "workspaces": [
+    "playground"
+  ],
   "scripts": {
     "prepack": "nuxt-module-build build",
     "dev": "npm run dev:prepare && nuxt dev playground",
@@ -61,9 +67,15 @@
     "@google/generative-ai": "^0.21.0"
   },
   "peerDependenciesMeta": {
-    "openai": { "optional": true },
-    "@anthropic-ai/sdk": { "optional": true },
-    "@google/generative-ai": { "optional": true }
+    "openai": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "@google/generative-ai": {
+      "optional": true
+    }
   },
   "keywords": [
     "nuxt",
