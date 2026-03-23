@@ -106,33 +106,38 @@ export async function translate(projectRoot: string, options: ModuleOptions): Pr
     // Get default locale name for translation prompts
     const defaultLocaleName = options.locales.find(l => l.code === options.defaultLocale)?.name || 'Spanish'
 
-    // Translate for each language
-    for (const locale of options.locales) {
-      logger.info(`Processing ${locale.name} (${locale.code})`)
+    // Always update the default locale file (key = value for source language)
+    if (scanResult.newKeys.size > 0 || (options.cleanOrphaned && scanResult.orphanedKeys.size > 0)) {
+      const defaultLocaleCode = options.defaultLocale || 'es'
+      const translations = Object.fromEntries(Array.from(scanResult.newKeys).map(k => [k, k]))
+      const existing = fileService.load(defaultLocaleCode)
+      let merged = { ...existing, ...translations }
 
-      if (locale.code === options.defaultLocale) {
-        // Default language: key = value
-        const translations = Object.fromEntries(Array.from(scanResult.newKeys).map(k => [k, k]))
-        const existing = fileService.load(locale.code)
-        let merged = { ...existing, ...translations }
+      // Clean orphaned keys if enabled
+      if (options.cleanOrphaned && scanResult.orphanedKeys.size > 0) {
+        const beforeCount = Object.keys(merged).length
+        merged = Object.fromEntries(Object.entries(merged).filter(([k]) => scanResult.allKeys.has(k)))
+        const removedCount = beforeCount - Object.keys(merged).length
 
-        // Clean orphaned keys if enabled
-        if (options.cleanOrphaned && scanResult.orphanedKeys.size > 0) {
-          const beforeCount = Object.keys(merged).length
-          merged = Object.fromEntries(Object.entries(merged).filter(([k]) => scanResult.allKeys.has(k)))
-          const removedCount = beforeCount - Object.keys(merged).length
-
-          if (removedCount > 0) {
-            logger.info(`Cleaned ${removedCount} orphaned keys from ${locale.code}`)
-          }
+        if (removedCount > 0) {
+          logger.info(`Cleaned ${removedCount} orphaned keys from ${defaultLocaleCode}`)
         }
+      }
 
-        fileService.save(locale.code, merged)
-        logger.success(`Saved ${scanResult.newKeys.size} new translations for ${locale.code}`)
+      fileService.save(defaultLocaleCode, merged)
+      logger.success(`Saved ${scanResult.newKeys.size} new keys for ${defaultLocaleCode} (source)`)
+    }
+
+    // Translate for each target language
+    for (const locale of options.locales) {
+      // Skip default locale (already handled above)
+      if (locale.code === options.defaultLocale) {
         continue
       }
 
-      // Other languages: translate
+      logger.info(`Processing ${locale.name} (${locale.code})`)
+
+      // Translate
       const result = await translator.translateKeys(scanResult.newKeys, defaultLocaleName, locale.name)
 
       // Merge with existing
