@@ -49,19 +49,49 @@ npm install openai
 
 Add the module to your `nuxt.config.ts`:
 
+### With `@nuxtjs/i18n` (recommended)
+
+When used alongside `@nuxtjs/i18n`, the module **automatically detects** `defaultLocale`, `locales`, and `outputPath` from your i18n config — no duplication needed:
+
+```typescript
+export default defineNuxtConfig({
+  modules: [
+    '@nuxtjs/i18n',
+    'nuxt-auto-translate',
+  ],
+
+  i18n: {
+    defaultLocale: 'es',
+    locales: [
+      { code: 'es', name: 'Español', file: 'es.json' },
+      { code: 'en', name: 'English', file: 'en.json' },
+    ],
+  },
+
+  // Only configure what's specific to auto-translate
+  autoTranslate: {
+    enabled: true,
+    provider: 'openai',
+  },
+})
+```
+
+You can still override any auto-detected value explicitly if needed (e.g., a different `outputPath`).
+
+### Standalone (without `@nuxtjs/i18n`)
+
 ```typescript
 export default defineNuxtConfig({
   modules: ['nuxt-auto-translate'],
 
   autoTranslate: {
     enabled: true,
-    provider: 'openai', // or 'anthropic', 'gemini', 'groq', 'ollama'
+    provider: 'openai',
     defaultLocale: 'es',
     locales: [
-      { code: 'es', name: 'Español' },
       { code: 'en', name: 'English' },
     ],
-    outputPath: 'i18n/locales', // Where to save translation JSON files
+    outputPath: 'i18n/locales',
   },
 })
 ```
@@ -80,9 +110,9 @@ NUXT_AUTO_TRANSLATE_OPENAI_KEY=sk-your-key-here
 |--------|------|---------|-------------|
 | `enabled` | `boolean` | `false` | Enable/disable auto-translate |
 | `provider` | `string` | `'openai'` | LLM provider to use |
-| `defaultLocale` | `string` | `'es'` | Source language code |
-| `locales` | `LocaleConfig[]` | `[]` | List of target locales |
-| `outputPath` | `string` | `'i18n/locales'` | Output directory for JSON files |
+| `defaultLocale` | `string` | auto / `'es'` | Source language code (auto-detected from i18n) |
+| `locales` | `LocaleConfig[]` | auto / `[]` | Target locales (auto-detected from i18n, excludes defaultLocale) |
+| `outputPath` | `string` | auto / `'i18n/locales'` | Output directory for JSON files (auto-detected from i18n langDir) |
 | `backupPath` | `string` | - | Backup directory (optional) |
 | `targetFolders` | `string[]` | `['components', 'pages', ...]` | Folders to scan |
 | `rootFiles` | `string[]` | `[]` | Root files to scan (e.g., `app.vue`) |
@@ -162,6 +192,22 @@ The module generates JSON files in your `outputPath`:
   "Hello {name}, you have {count} messages": "Hola {name}, tienes {count} mensajes"
 }
 ```
+
+## `@nuxtjs/i18n` Integration
+
+When `@nuxtjs/i18n` is installed, the module auto-detects the following from your i18n config:
+
+| Setting | Auto-detected from | Fallback |
+|---------|-------------------|----------|
+| `defaultLocale` | `i18n.defaultLocale` | `'es'` |
+| `locales` | `i18n.locales` (excludes `defaultLocale`) | `[]` |
+| `outputPath` | `i18n.langDir` | `'i18n/locales'` |
+
+**How it works:**
+- The module reads `nuxt.options.i18n` during setup — this config is available regardless of module order in the `modules` array
+- The `defaultLocale` is treated as the **source language** and excluded from translation targets
+- Explicit values in `autoTranslate` always take precedence over auto-detected values
+- If `@nuxtjs/i18n` is not installed, all values must be configured manually
 
 ## Provider Comparison
 

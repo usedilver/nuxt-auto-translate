@@ -20,20 +20,23 @@ export interface ModuleOptions {
 
   /**
    * Default locale code (source language)
+   * Auto-detected from @nuxtjs/i18n if not provided
    * @default 'es'
    */
-  defaultLocale: string
+  defaultLocale?: string
 
   /**
    * List of locales to translate to
+   * Auto-detected from @nuxtjs/i18n if not provided (excludes defaultLocale)
    */
   locales: LocaleConfig[]
 
   /**
    * Output path for translation files (relative to project root)
+   * Auto-detected from @nuxtjs/i18n langDir if not provided
    * @default 'i18n/locales'
    */
-  outputPath: string
+  outputPath?: string
 
   /**
    * Backup path for translation files before cleaning
