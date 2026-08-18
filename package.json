@@ -13,6 +13,7 @@
   "license": "MIT",
   "author": "useDilver",
   "type": "module",
+  "packageManager": "pnpm@10.28.1",
   "exports": {
     ".": {
       "types": "./dist/types.d.mts",
