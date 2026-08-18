@@ -1,7 +1,12 @@
-import { defineNuxtModule, createResolver } from '@nuxt/kit'
+import { defineNuxtModule } from '@nuxt/kit'
 import type { ModuleOptions } from './types'
+import { DEFAULT_OPTIONS, resolveOptions, type I18nConfig } from './core/resolve-options'
 
 export type { ModuleOptions } from './types'
+
+// Re-exported so the CLI (bin/cli.mjs) can run a translation on demand.
+export { resolveOptions } from './core/resolve-options'
+export { translate } from './core/translate'
 
 // Track if translation is already running (debounce)
 let isRunning = false
@@ -14,80 +19,21 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt: '>=3.0.0',
     },
   },
-  defaults: {
-    enabled: false,
-    provider: 'openai',
-    locales: [],
-    outputPath: 'i18n/locales',
-    targetFolders: ['assets', 'components', 'composables', 'layouts', 'middleware', 'pages', 'plugins', 'store', 'utils'],
-    rootFiles: [],
-    fileExtensions: ['.vue', '.ts', '.js'],
-    enableCache: true,
-    cleanOrphaned: false,
-    backupBeforeClean: true,
-    maxBackups: 3,
-  },
+  defaults: DEFAULT_OPTIONS,
   async setup(options, nuxt) {
     // Skip if not enabled
     if (!options.enabled) {
       return
     }
 
-    // Auto-detect config from @nuxtjs/i18n if available
-    const i18nConfig = (nuxt.options as Record<string, any>).i18n
-
-    if (i18nConfig) {
-      // Use i18n defaultLocale as fallback
-      if (!options.defaultLocale && i18nConfig.defaultLocale) {
-        options.defaultLocale = i18nConfig.defaultLocale
-        console.log(`[nuxt-auto-translate] Auto-detected defaultLocale: "${i18nConfig.defaultLocale}" from @nuxtjs/i18n`)
-      }
-
-      // Use i18n locales as fallback (exclude the defaultLocale — it's the source language)
-      if (options.locales.length === 0 && Array.isArray(i18nConfig.locales)) {
-        const defaultLocale = options.defaultLocale || i18nConfig.defaultLocale || 'es'
-
-        options.locales = i18nConfig.locales
-          .filter((locale: any) => {
-            const code = typeof locale === 'string' ? locale : locale.code
-            return code !== defaultLocale
-          })
-          .map((locale: any) => {
-            if (typeof locale === 'string') {
-              return { code: locale, name: locale }
-            }
-            return {
-              code: locale.code,
-              name: locale.name || locale.code,
-              file: locale.file,
-            }
-          })
-
-        if (options.locales.length > 0) {
-          const codes = options.locales.map(l => l.code).join(', ')
-          console.log(`[nuxt-auto-translate] Auto-detected locales from @nuxtjs/i18n: [${codes}]`)
-        }
-      }
-
-      // Use i18n langDir as fallback for outputPath
-      if (!options.outputPath && i18nConfig.langDir) {
-        options.outputPath = i18nConfig.langDir
-        console.log(`[nuxt-auto-translate] Auto-detected outputPath: "${i18nConfig.langDir}" from @nuxtjs/i18n langDir`)
-      }
-    }
-
-    // Apply default if still not set
-    if (!options.defaultLocale) {
-      options.defaultLocale = 'es'
-    }
+    const i18nConfig = (nuxt.options as Record<string, unknown>).i18n as I18nConfig | undefined
+    const resolved = resolveOptions(options, i18nConfig)
 
     // Validate configuration
-    if (options.locales.length === 0) {
+    if (resolved.locales.length === 0) {
       console.warn('[nuxt-auto-translate] No locales configured (and could not detect from @nuxtjs/i18n). Module disabled.')
       return
     }
-
-    const _resolver = createResolver(import.meta.url)
 
     // Hook: Before build
     nuxt.hook('build:before', async () => {
@@ -96,34 +42,35 @@ export default defineNuxtModule<ModuleOptions>({
 
       try {
         const { translate } = await import('./core/translate')
-        await translate(nuxt.options.srcDir, options)
-      } finally {
+        await translate(nuxt.options.srcDir, resolved)
+      }
+      finally {
         isRunning = false
       }
     })
 
-    // Hook: Watch for file changes in development
-    nuxt.hook('builder:watch', async (_event, path) => {
-      if (isRunning) return
+    // Hook: Watch for file changes in development (opt-in via `watch: true`)
+    if (resolved.watch) {
+      nuxt.hook('builder:watch', async (_event, path) => {
+        if (isRunning) return
 
-      // Check if path should be ignored
-      const ignorePaths = options.ignorePaths || [options.outputPath]
-      const shouldIgnore = ignorePaths.some(ignorePath => path.includes(ignorePath))
+        const ignorePaths = resolved.ignorePaths || [resolved.outputPath!]
+        const shouldIgnore = ignorePaths.some(ignorePath => path.includes(ignorePath))
+        if (shouldIgnore) return
 
-      if (shouldIgnore) return
+        const isTargetFile = resolved.fileExtensions?.some(ext => path.endsWith(ext))
+        if (!isTargetFile) return
 
-      // Only translate on changes to target file types
-      const isTargetFile = options.fileExtensions?.some(ext => path.endsWith(ext))
-      if (!isTargetFile) return
+        isRunning = true
 
-      isRunning = true
-
-      try {
-        const { translate } = await import('./core/translate')
-        await translate(nuxt.options.srcDir, options)
-      } finally {
-        isRunning = false
-      }
-    })
+        try {
+          const { translate } = await import('./core/translate')
+          await translate(nuxt.options.srcDir, resolved)
+        }
+        finally {
+          isRunning = false
+        }
+      })
+    }
   },
 })

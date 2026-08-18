@@ -18,10 +18,11 @@ Módulo de Nuxt que automatiza traducciones i18n usando LLMs (OpenAI, Anthropic,
 
 ### Cuándo se ejecuta
 
-| Evento          | Condición             | Acción                                  |
-| --------------- | --------------------- | --------------------------------------- |
-| `build:before`  | `enabled: true`       | Traduce antes del build                 |
-| `builder:watch` | `enabled: true`       | Traduce al detectar cambios en archivos |
+| Evento          | Condición                      | Acción                                  |
+| --------------- | ------------------------------ | --------------------------------------- |
+| CLI             | `nuxt-auto-translate` (script) | Traduce una vez, bajo demanda           |
+| `build:before`  | `enabled: true`                | Traduce antes del build                 |
+| `builder:watch` | `enabled: true` + `watch: true`| Traduce al detectar cambios (opt-in)    |
 
 ### Providers de traducción
 

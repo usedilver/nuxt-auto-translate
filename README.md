@@ -110,6 +110,7 @@ NUXT_AUTO_TRANSLATE_OPENAI_KEY=sk-your-key-here
 |--------|------|---------|-------------|
 | `enabled` | `boolean` | `false` | Enable/disable auto-translate |
 | `provider` | `string` | `'openai'` | LLM provider to use |
+| `watch` | `boolean` | `false` | Re-translate on every source change during `nuxt dev` (opt-in) |
 | `defaultLocale` | `string` | auto / `'es'` | Source language code (auto-detected from i18n) |
 | `locales` | `LocaleConfig[]` | auto / `[]` | Target locales (auto-detected from i18n, excludes defaultLocale) |
 | `outputPath` | `string` | auto / `'i18n/locales'` | Output directory for JSON files (auto-detected from i18n langDir) |
@@ -161,10 +162,29 @@ interface LocaleConfig {
 
 ## Usage
 
-Once configured, the module will:
+There are two ways to run translations:
 
-1. **On build**: Scan source code and translate new keys
-2. **On dev watch**: Re-translate when source files change
+1. **On demand (recommended)** — run the CLI when you finish a task. Decoupled from dev/build, so intermediate `$t()` edits don't trigger translations or churn your JSON files.
+2. **On build** — with `enabled: true`, the module translates during `build:before`.
+3. **On dev watch (opt-in)** — set `watch: true` to re-translate on every source file change during `nuxt dev`.
+
+### CLI (on-demand)
+
+The package ships a `nuxt-auto-translate` binary. Add a script:
+
+```json
+{
+  "scripts": {
+    "translate": "nuxt-auto-translate"
+  }
+}
+```
+
+```bash
+pnpm translate
+```
+
+It reads your `autoTranslate` + `@nuxtjs/i18n` config from `nuxt.config`, loads `.env` for the provider key, translates new keys once, and exits. Review the JSON diff and commit it like any other file. The module itself can stay `enabled: false` — the CLI runs independently.
 
 ### In your components
 

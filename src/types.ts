@@ -19,6 +19,13 @@ export interface ModuleOptions {
   provider: ProviderName
 
   /**
+   * Watch source files during dev and re-translate on every change.
+   * Off by default — prefer running translation on demand (e.g. via the CLI).
+   * @default false
+   */
+  watch?: boolean
+
+  /**
    * Default locale code (source language)
    * Auto-detected from @nuxtjs/i18n if not provided
    * @default 'es'
@@ -169,12 +176,12 @@ export interface ProviderConfig {
 /**
  * Result type (Rust-style error handling)
  */
-export type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E }
+export type Result<T, E = Error> = { success: true, data: T } | { success: false, error: E }
 
 /**
  * Result of a single translation
  */
-export type TranslationResult = Result<{ key: string; value: string }, { key: string; error: string }>
+export type TranslationResult = Result<{ key: string, value: string }, { key: string, error: string }>
 
 /**
  * Error details for failed translations

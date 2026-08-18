@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.0
+
+### Features
+
+- **CLI / on-demand translation**: run `nuxt-auto-translate` as a command to scan and translate once, decoupled from the dev/build lifecycle. Reads the same `autoTranslate` and `@nuxtjs/i18n` config via `loadNuxtConfig`, loads `.env` automatically, and exits. Ideal for a `package.json` script run when a task is finished.
+- Export `translate` and `resolveOptions` from the package entry for programmatic use.
+
+### ⚠️ Breaking
+
+- The per-save dev watcher (`builder:watch`) is now **opt-in** via `watch: true` (default `false`). Real-time re-translation on every file save is off by default; prefer the CLI or the `build:before` hook. Set `autoTranslate.watch: true` to restore the previous behavior.
+
+### Internal
+
+- Extracted defaults + i18n auto-detection into a shared, unit-tested `resolveOptions()` used by both the module and the CLI.
+
 ## v0.1.1
 
 ### Features

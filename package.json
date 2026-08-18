@@ -1,6 +1,6 @@
 {
   "name": "nuxt-auto-translate",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Automatic i18n translations for Nuxt using LLMs (OpenAI, Anthropic, Gemini, Groq, Ollama)",
   "repository": {
     "type": "git",
@@ -20,6 +20,9 @@
     }
   },
   "main": "./dist/module.mjs",
+  "bin": {
+    "nuxt-auto-translate": "./bin/cli.mjs"
+  },
   "typesVersions": {
     "*": {
       ".": [
@@ -28,7 +31,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "workspaces": [
     "playground"
