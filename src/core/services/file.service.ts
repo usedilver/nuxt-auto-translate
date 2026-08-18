@@ -1,5 +1,5 @@
-import * as fs from 'fs'
-import path from 'path'
+import * as fs from 'node:fs'
+import path from 'node:path'
 import type { TranslationError } from '../../types'
 
 export class TranslationFileService {
@@ -18,7 +18,8 @@ export class TranslationFileService {
     try {
       const file = fs.readFileSync(filePath, 'utf-8')
       return JSON.parse(file)
-    } catch (error) {
+    }
+    catch (error) {
       console.warn(`Error loading translations for ${langCode}:`, error)
       return {}
     }
@@ -47,7 +48,8 @@ export class TranslationFileService {
     try {
       const file = fs.readFileSync(errorPath, 'utf-8')
       return JSON.parse(file)
-    } catch (error) {
+    }
+    catch (error) {
       console.warn('Error loading error log:', error)
       return []
     }
@@ -95,7 +97,7 @@ export class TranslationFileService {
       const allFiles = fs.readdirSync(backupDir)
       const langBackups = allFiles
         .filter(file => file.startsWith(`${langCode}-`) && file.endsWith('.json'))
-        .map((file) => ({
+        .map(file => ({
           name: file,
           path: path.join(backupDir, file),
           mtime: fs.statSync(path.join(backupDir, file)).mtime.getTime(),
@@ -110,7 +112,8 @@ export class TranslationFileService {
           console.log(`[Backup] Deleted old backup: ${backup.name}`)
         })
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.warn(`Error cleaning old backups for ${langCode}:`, error)
     }
   }

@@ -1,10 +1,10 @@
-import * as fs from 'fs'
-import path from 'path'
+import * as fs from 'node:fs'
+import path from 'node:path'
 import type { ScanResult } from '../../types'
 
 export class ScannerService {
   // Regex to match $t("..."), $t('...'), or $t(`...`)
-  private readonly regex = /\$t\(\s*(?:"((?:[^"\\]|\\.)*?)"|'((?:[^'\\]|\\.)*?)'|`((?:[^`]|\\.)*?)`)[^)]*\)/g
+  private readonly regex = /\$t\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`]|\\.)*)`)[^)]*\)/g
 
   constructor(
     private readonly projectRoot: string,
@@ -50,7 +50,8 @@ export class ScannerService {
 
       if (stat.isFile() && this.fileExtensions.includes(path.extname(file))) {
         this.scanFile(filePath, foundKeys, keyLocations)
-      } else if (stat.isDirectory()) {
+      }
+      else if (stat.isDirectory()) {
         this.scanDirectory(filePath, foundKeys, keyLocations)
       }
     })

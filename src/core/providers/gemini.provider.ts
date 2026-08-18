@@ -5,6 +5,8 @@ export class GeminiProvider implements TranslationProvider {
   readonly name = 'gemini'
   readonly supportsBatching = true
 
+  // Untyped: the SDK is an optional peer dependency loaded dynamically.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any
 
   constructor(
@@ -58,7 +60,8 @@ export class GeminiProvider implements TranslationProvider {
           value: translatedText,
         },
       }
-    } catch (error) {
+    }
+    catch (error) {
       return {
         success: false,
         error: {
@@ -118,7 +121,8 @@ ${JSON.stringify(inputMap, null, 2)}`
       let translations: Record<string, string>
       try {
         translations = JSON.parse(content) as Record<string, string>
-      } catch {
+      }
+      catch {
         console.warn('[Gemini] Invalid JSON in batch response, falling back to individual translations')
         return this.fallbackToIndividual(texts, sourceLang, targetLang)
       }
@@ -132,7 +136,8 @@ ${JSON.stringify(inputMap, null, 2)}`
             success: true,
             data: { key: text, value },
           }
-        } else {
+        }
+        else {
           return {
             success: false,
             error: {
@@ -142,7 +147,8 @@ ${JSON.stringify(inputMap, null, 2)}`
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Error && error.message.includes('429')) {
         console.warn('[Gemini] Rate limit hit during batch translation')
       }

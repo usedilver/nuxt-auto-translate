@@ -57,7 +57,8 @@ export class TranslatorService {
             if (this.validator.validate(key, value)) {
               successful[key] = value
               this.logger.debug(`Translated: ${key.substring(0, 40)}...`)
-            } else {
+            }
+            else {
               failed.push({
                 key,
                 error: 'Validation failed: variables or HTML mismatch',
@@ -65,14 +66,16 @@ export class TranslatorService {
               })
               this.logger.warn(`Validation failed for: ${key.substring(0, 40)}...`)
             }
-          } else {
+          }
+          else {
             failed.push({
               ...result.value.error,
               timestamp: new Date().toISOString(),
             })
             this.logger.warn(`Failed: ${result.value.error.key.substring(0, 40)}...: ${result.value.error.error}`)
           }
-        } else {
+        }
+        else {
           this.logger.error('Promise rejected:', result.reason)
         }
       }
@@ -119,7 +122,8 @@ export class TranslatorService {
             if (this.validator.validate(key, value)) {
               successful[key] = value
               this.logger.debug(`Translated: ${key.substring(0, 40)}...`)
-            } else {
+            }
+            else {
               failed.push({
                 key,
                 error: 'Validation failed: variables or HTML mismatch',
@@ -127,7 +131,8 @@ export class TranslatorService {
               })
               this.logger.warn(`Validation failed: ${key.substring(0, 40)}...`)
             }
-          } else {
+          }
+          else {
             failed.push({
               ...result.error,
               timestamp: new Date().toISOString(),
@@ -139,7 +144,8 @@ export class TranslatorService {
         this.logger.success(
           `Batch ${currentChunk}/${totalChunks} done: ${Object.keys(successful).length}/${keys.length} total successful`,
         )
-      } catch (error) {
+      }
+      catch (error) {
         this.logger.error(`Batch ${currentChunk}/${totalChunks} failed:`, error)
         chunk.forEach((key) => {
           failed.push({

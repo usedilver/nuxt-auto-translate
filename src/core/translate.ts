@@ -3,7 +3,7 @@ import { ScannerService } from './services/scanner.service'
 import { TranslatorService } from './services/translator.service'
 import { TranslationFileService } from './services/file.service'
 import { Logger } from './utils/logger'
-import type { ModuleOptions, LocaleConfig, ProviderConfig } from '../types'
+import type { ModuleOptions, ProviderConfig, ProviderName } from '../types'
 
 const logger = new Logger('auto-translate')
 
@@ -53,7 +53,7 @@ function resolveProviderConfig(
 export async function translate(projectRoot: string, options: ModuleOptions): Promise<void> {
   try {
     // Resolve provider from options or env
-    const provider = options.provider || (process.env.NUXT_AUTO_TRANSLATE_PROVIDER as any) || 'openai'
+    const provider = options.provider || (process.env.NUXT_AUTO_TRANSLATE_PROVIDER as ProviderName) || 'openai'
 
     // Initialize the active provider
     await initializeProviders(
@@ -166,7 +166,8 @@ export async function translate(projectRoot: string, options: ModuleOptions): Pr
 
       logger.success(`Saved ${Object.keys(result.successful).length} new translations for ${locale.code}`)
     }
-  } catch (error) {
+  }
+  catch (error) {
     logger.error('Translation process failed:', error)
     throw error
   }

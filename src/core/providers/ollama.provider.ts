@@ -12,6 +12,8 @@ export class OllamaProvider implements TranslationProvider {
   readonly name = 'ollama'
   readonly supportsBatching = true
 
+  // Untyped: the SDK is an optional peer dependency loaded dynamically.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any
 
   constructor(
@@ -65,7 +67,8 @@ export class OllamaProvider implements TranslationProvider {
           value: translatedText,
         },
       }
-    } catch (error) {
+    }
+    catch (error) {
       return {
         success: false,
         error: {
@@ -115,7 +118,8 @@ ${JSON.stringify(inputMap, null, 2)}`,
       let translations: Record<string, string>
       try {
         translations = JSON.parse(content) as Record<string, string>
-      } catch {
+      }
+      catch {
         console.warn('[Ollama] Invalid JSON in batch response, falling back to individual translations')
         return this.fallbackToIndividual(texts, sourceLang, targetLang)
       }
@@ -129,7 +133,8 @@ ${JSON.stringify(inputMap, null, 2)}`,
             success: true,
             data: { key: text, value },
           }
-        } else {
+        }
+        else {
           return {
             success: false,
             error: {
@@ -139,7 +144,8 @@ ${JSON.stringify(inputMap, null, 2)}`,
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Error && error.message.includes('ECONNREFUSED')) {
         console.warn('[Ollama] Connection refused - make sure Ollama/LM Studio is running')
       }

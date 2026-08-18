@@ -5,6 +5,8 @@ export class OpenAIProvider implements TranslationProvider {
   readonly name = 'openai'
   readonly supportsBatching = true
 
+  // Untyped: the SDK is an optional peer dependency loaded dynamically.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any
 
   constructor(
@@ -71,7 +73,8 @@ export class OpenAIProvider implements TranslationProvider {
           value: translatedText,
         },
       }
-    } catch (error) {
+    }
+    catch (error) {
       return {
         success: false,
         error: {
@@ -134,7 +137,8 @@ Debes responder con el mismo formato pero con los valores traducidos.`,
       let translations: Record<string, string>
       try {
         translations = JSON.parse(content) as Record<string, string>
-      } catch {
+      }
+      catch {
         console.warn('[OpenAI] Invalid JSON in batch response, falling back to individual translations')
         return this.fallbackToIndividual(texts, sourceLang, targetLang)
       }
@@ -148,7 +152,8 @@ Debes responder con el mismo formato pero con los valores traducidos.`,
             success: true,
             data: { key: text, value },
           }
-        } else {
+        }
+        else {
           return {
             success: false,
             error: {
@@ -158,7 +163,8 @@ Debes responder con el mismo formato pero con los valores traducidos.`,
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Error && error.message.includes('429')) {
         console.warn('[OpenAI] Rate limit hit during batch translation')
       }
